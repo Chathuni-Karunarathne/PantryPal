@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { ArrowDownRight } from "lucide-react";
 import { PantryPalLogo } from "@/components/brand/pantrypal-logo";
 import { BrandPanel } from "@/components/auth/brand-panel";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
@@ -13,10 +14,13 @@ export function AuthShell({ children }: { children: ReactNode }) {
       <div className="auth-frame">
         <header className="auth-header">
           <PantryPalLogo />
-          <span className="header-caption">
-            INTELLIGENT INVENTORY. INSPIRED BUSINESS.
-            <ArrowDownRight size={15} aria-hidden="true" />
-          </span>
+          <div className="header-tools">
+            <span className="header-caption">
+              INTELLIGENT INVENTORY. INSPIRED BUSINESS.
+              <ArrowDownRight size={15} aria-hidden="true" />
+            </span>
+            <ThemeToggle />
+          </div>
         </header>
         <main className="auth-main">
           <BrandPanel />

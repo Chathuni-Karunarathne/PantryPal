@@ -12,7 +12,7 @@
   color-scheme: light;
   --background: #f5f5ee;
   --foreground: #20271e;
-  --card: #ffffff;
+  --card: #fbfcf8;
   --card-foreground: var(--foreground);
   --popover: #ffffff;
   --popover-foreground: var(--foreground);
@@ -25,7 +25,7 @@
   --accent: #e6edda;
   --accent-foreground: #344926;
   --border: #d6dcce;
-  --input: #a0aa96;
+  --input: #7d8973;
   --ring: #61793d;
   --success: #37714d;
   --warning: #835d13;
@@ -36,6 +36,23 @@
   --shadow-soft: 0 16px 44px #1b271011;
   --glow-primary: 0 0 48px #a6be6920;
   --radius: 0.75rem;
+  --surface: var(--card);
+  --surface-elevated: var(--surface-raised);
+  --danger: var(--destructive);
+  --action-background: #d4e69b;
+  --action-foreground: #202716;
+  --action-hover: #c9dd88;
+  --atmosphere: #91ad6230;
+  --surface-highlight: #ffffffcc;
+  --input-shadow: #344b1610;
+  --illustration-glass: #6e874d;
+  --illustration-outline: #617549;
+  --illustration-grain: #b19b64;
+  --illustration-leaf-start: #9bb96d;
+  --illustration-leaf-end: #58743c;
+  --illustration-stem: #73894e;
+  --illustration-wheat: #93814d;
+  --illustration-shadow: #667448;
 }
 
 .dark {
@@ -65,6 +82,18 @@
   --accent-secondary: #abc5a0;
   --shadow-soft: 0 20px 60px #050b0738;
   --glow-primary: 0 0 56px #b4cf7512;
+  --action-hover: #daeaa9;
+  --atmosphere: #d4e69b14;
+  --surface-highlight: #ffffff0a;
+  --input-shadow: #00000008;
+  --illustration-glass: #e0e8b0;
+  --illustration-outline: #d7e1b2;
+  --illustration-grain: #d9cfab;
+  --illustration-leaf-start: #cbdc91;
+  --illustration-leaf-end: #728d50;
+  --illustration-stem: #acbd81;
+  --illustration-wheat: #c7bc8d;
+  --illustration-shadow: #080c08;
 }
 
 @theme inline {

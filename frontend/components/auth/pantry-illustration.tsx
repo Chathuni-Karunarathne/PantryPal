@@ -14,7 +14,7 @@ export function PantryIllustration() {
       role="img"
       aria-label="Ingredients connect inventory, recipes, and orders. Sunday Specials help turn surplus into possibility."
     >
-      <div aria-hidden="true">
+      <div className="illustration-scene" aria-hidden="true">
         <svg className="orbit-lines" viewBox="0 0 600 340" fill="none">
           <ellipse
             cx="300"
@@ -50,8 +50,12 @@ export function PantryIllustration() {
                 y2="194"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#e0e8b0" stopOpacity=".18" />
-                <stop offset="1" stopColor="#e0e8b0" stopOpacity=".02" />
+                <stop stopColor="var(--illustration-glass)" stopOpacity=".18" />
+                <stop
+                  offset="1"
+                  stopColor="var(--illustration-glass)"
+                  stopOpacity=".02"
+                />
               </linearGradient>
               <linearGradient
                 id="leaf-fill"
@@ -61,8 +65,8 @@ export function PantryIllustration() {
                 y2="145"
                 gradientUnits="userSpaceOnUse"
               >
-                <stop stopColor="#cbdc91" />
-                <stop offset="1" stopColor="#728d50" />
+                <stop stopColor="var(--illustration-leaf-start)" />
+                <stop offset="1" stopColor="var(--illustration-leaf-end)" />
               </linearGradient>
             </defs>
             <ellipse
@@ -70,18 +74,18 @@ export function PantryIllustration() {
               cy="181"
               rx="72"
               ry="9"
-              fill="#080c08"
+              fill="var(--illustration-shadow)"
               opacity=".35"
             />
             <path
               d="M76 83c-6 8-10 11-10 23v61c0 14 86 14 86 0v-61c0-12-4-15-10-23"
               fill="url(#jar-glass)"
-              stroke="#d7e1b2"
+              stroke="var(--illustration-outline)"
               strokeOpacity=".45"
             />
             <path
               d="M70 128c21 5 52-9 78-1v39c0 11-78 11-78 0Z"
-              fill="#d9cfab"
+              fill="var(--illustration-grain)"
               fillOpacity=".3"
             />
             <path
@@ -112,7 +116,7 @@ export function PantryIllustration() {
             <path d="M98 146h22" stroke="#697252" strokeOpacity=".6" />
             <path
               d="M157 175c-3-37 6-62 19-91 7-16 10-35 8-57"
-              stroke="#acbd81"
+              stroke="var(--illustration-stem)"
               strokeWidth="2"
               strokeLinecap="round"
             />
@@ -140,13 +144,13 @@ export function PantryIllustration() {
             />
             <path
               d="M56 172C49 119 42 80 29 42m16 49C21 85 17 74 19 63c17 4 26 13 26 28Zm5 28c-24-6-28-17-26-28 16 4 25 13 26 28Zm-12-52c14-14 15-28 8-36-12 11-15 24-8 36Zm9 36c15-13 19-26 13-36-14 9-19 21-13 36Z"
-              stroke="#c7bc8d"
+              stroke="var(--illustration-wheat)"
               strokeWidth="1.5"
               strokeLinejoin="round"
             />
             <path
               d="m53 142 19-25M55 156l-19-14"
-              stroke="#c7bc8d"
+              stroke="var(--illustration-wheat)"
               strokeWidth="1.5"
               strokeLinecap="round"
             />
