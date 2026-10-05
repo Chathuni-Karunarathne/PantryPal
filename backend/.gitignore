@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local credentials must never be tracked.
+.env
+.env.*
+!.env.example
+application-local.properties
