@@ -6,6 +6,7 @@ import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,12 @@ public class ApiExceptionHandler {
     ResponseEntity<ApiError> authentication() {
         // Includes DisabledException; do not reveal account existence or status to anonymous callers.
         return response(ApiError.of(401, "INVALID_CREDENTIALS", "Unable to sign in with these credentials."));
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    ResponseEntity<ApiError> authenticationUnavailable() {
+        // A user-store failure is not an incorrect password; preserve safe outage handling.
+        return response(ApiError.of(500, "INTERNAL_ERROR", "An unexpected error occurred."));
     }
 
     @ExceptionHandler(InvalidRefreshTokenException.class)

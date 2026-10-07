@@ -4,6 +4,7 @@ import com.pantrypal.backend.common.exception.SecurityErrorHandler;
 import com.pantrypal.backend.security.SessionAuthenticationConverter;
 import java.util.List;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,7 +36,8 @@ public class SecurityConfiguration {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, SessionAuthenticationConverter converter,
-                                            SecurityErrorHandler errors, CorsConfigurationSource cors) throws Exception {
+                                            SecurityErrorHandler errors,
+                                            @Qualifier("corsConfigurationSource") CorsConfigurationSource cors) throws Exception {
         return http.cors(c -> c.configurationSource(cors))
                 // No cookie authentication: every credential is explicitly supplied in header/JSON.
                 .csrf(csrf -> csrf.disable())
