@@ -65,23 +65,22 @@ test("password visibility is keyboard operable and preserves the value", async (
   await expect(input).toHaveAttribute("type", "password");
 });
 
-test("submission stays on login without sending or persisting credentials", async ({
+test("failed login preserves email and never persists credentials in browser storage", async ({
   page,
   context,
 }) => {
-  const mutations: string[] = [];
-  page.on("request", (request) => {
-    if (request.method() !== "GET") mutations.push(request.url());
+  await page.route("**/api/auth/login", (route) => {
+    return route.fulfill({ status: 401, json: { message: "Email or password is incorrect." } });
   });
   await page.goto("/login");
   await page.getByLabel("Email address").fill("staff@example.com");
   await page.getByLabel("Password", { exact: true }).fill("test-only-password");
   await page.getByLabel("Password", { exact: true }).press("Enter");
   await expect(page.getByRole("status")).toContainText(
-    "Sign-in is not available yet.",
+    "Email or password is incorrect.",
   );
   await expect(page).toHaveURL(/\/login$/);
-  expect(mutations).toEqual([]);
+  await expect(page.getByLabel("Email address")).toHaveValue("staff@example.com");
   expect(await context.cookies()).toEqual([]);
   expect(
     await page.evaluate(() => ({

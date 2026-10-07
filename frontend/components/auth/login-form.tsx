@@ -1,6 +1,9 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth/auth-provider";
+import { AuthError, type LoginCredentials } from "@/lib/auth/types";
 import {
   ArrowRight,
   CircleAlert,
@@ -14,22 +17,18 @@ import { PasswordField } from "@/components/auth/password-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export type LoginCredentials = { email: string; password: string };
-
-type LoginFormProps = {
-  /** Connect a client-side REST adapter here when authentication is implemented.
-   * The adapter owns successful navigation; rejections receive safe, generic copy.
-   */
-  onAuthenticate?: (credentials: LoginCredentials) => Promise<void>;
-};
-
 type FieldErrors = Partial<Record<keyof LoginCredentials, string>>;
 
 const subscribe = () => () => {};
 const clientReady = () => true;
 const serverReady = () => false;
 
-export function LoginForm({ onAuthenticate }: LoginFormProps) {
+export function LoginForm() {
+  const auth = useAuth();
+  const router = useRouter();
+  useEffect(() => {
+    if (auth.status === "authenticated") router.replace("/dashboard");
+  }, [auth.status, router]);
   // Keep credentials out of a native GET submission before hydration or without JS.
   const ready = useSyncExternalStore(subscribe, clientReady, serverReady);
   const inFlight = useRef(false);
@@ -84,25 +83,18 @@ export function LoginForm({ onAuthenticate }: LoginFormProps) {
       return;
     }
 
-    // Phase 1 has no network request, persistence, delay, or fake session.
-    if (!onAuthenticate) {
-      setMessage(
-        "Sign-in is not available yet. Please try again once your workspace is ready.",
-      );
-      return;
-    }
-
     inFlight.current = true;
     setSubmitting(true);
     try {
-      await onAuthenticate({
+      await auth.login({
         email: email.value.trim(),
         password: password.value,
       });
-    } catch {
-      setMessage(
-        "We couldn’t sign you in. Check your details and try again. If this continues, contact your administrator.",
-      );
+      password.value = "";
+      router.replace("/dashboard");
+    } catch (error) {
+      setMessage(error instanceof AuthError ? error.message : "We couldn't sign you in. Please try again.");
+      if (error instanceof AuthError) setErrors(error.fieldErrors);
     } finally {
       inFlight.current = false;
       setSubmitting(false);
@@ -131,7 +123,7 @@ export function LoginForm({ onAuthenticate }: LoginFormProps) {
         aria-label="Sign in"
         aria-busy={submitting}
       >
-        <fieldset disabled={!ready || submitting} className="login-fields">
+        <fieldset disabled={!ready || submitting || auth.status === "resolving" || auth.status === "authenticated"} className="login-fields">
           <legend className="sr-only">Your sign-in details</legend>
           <FormField id="email" label="Email address" error={errors.email}>
             <div className="input-wrap">
@@ -200,10 +192,10 @@ export function LoginForm({ onAuthenticate }: LoginFormProps) {
           aria-live="polite"
           aria-atomic="true"
         >
-          {message && (
+          {(message || auth.message) && (
             <p className="form-message">
               <CircleAlert size={17} aria-hidden="true" />
-              <span>{message}</span>
+              <span>{message || auth.message}</span>
             </p>
           )}
           <span className="sr-only">

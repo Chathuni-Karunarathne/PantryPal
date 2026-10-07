@@ -9,8 +9,8 @@ export default defineConfig({
   reporter: "list",
   use: {
     baseURL: "http://127.0.0.1:3100",
-    trace: "retain-on-failure",
-    screenshot: "only-on-failure",
+    trace: process.env.PANTRYPAL_LIVE_AUTH ? "off" : "retain-on-failure",
+    screenshot: process.env.PANTRYPAL_LIVE_AUTH ? "off" : "only-on-failure",
   },
   projects: [
     {
@@ -27,6 +27,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run start -- --hostname 127.0.0.1 --port 3100",
+    env: { APP_ORIGIN: "http://127.0.0.1:3100", AUTH_COOKIE_SECURE: "false", API_URL: process.env.API_URL ?? "http://localhost:8080" },
     url: "http://127.0.0.1:3100/login",
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
