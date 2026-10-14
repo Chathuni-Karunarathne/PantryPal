@@ -1,0 +1,6 @@
+package com.pantrypal.backend.inventory.entity;
+
+public enum IngredientCategory {
+    FLOUR_AND_GRAINS, DAIRY_AND_EGGS, SUGAR_AND_SWEETENERS, FRUIT_AND_VEGETABLES,
+    FATS_AND_OILS, SPICES_AND_FLAVOURINGS, NUTS_AND_SEEDS, MEAT_AND_SEAFOOD, OTHER
+}

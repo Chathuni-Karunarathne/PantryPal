@@ -47,6 +47,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(a -> a
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("OWNER_ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasAnyRole("OWNER_ADMIN", "MANAGER")
+                        .requestMatchers("/api/inventory/**").hasAnyRole("OWNER_ADMIN", "MANAGER", "INVENTORY_STAFF")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(errors).accessDeniedHandler(errors))
                 .oauth2ResourceServer(o -> o
@@ -59,7 +61,7 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource(AuthProperties properties) {
         CorsConfiguration cors = new CorsConfiguration();
         cors.setAllowedOrigins(properties.allowedOrigins());
-        cors.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        cors.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         cors.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         cors.setAllowCredentials(false);
         cors.setMaxAge(3600L);

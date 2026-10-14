@@ -1,18 +1,22 @@
 import "server-only";
 
 export class BackendError extends Error {
-  constructor(public readonly status: number, public readonly fields: string[] = []) {
+  constructor(public readonly status: number, public readonly fields: string[] = [], public readonly code = "REQUEST_FAILED") {
     super("Backend request failed");
   }
 }
 
 export async function backendRequest<T>(path: string, options: { body?: unknown; token?: string } = {}): Promise<T> {
+  return backendApiRequest<T>(`auth/${path}`, options);
+}
+
+export async function backendApiRequest<T>(path: string, options: { body?: unknown; token?: string; method?: string } = {}): Promise<T> {
   const base = process.env.API_URL;
   if (!base) throw new BackendError(503);
   let response: Response;
   try {
-    response = await fetch(`${base.replace(/\/$/, "")}/api/auth/${path}`, {
-      method: options.body === undefined ? "GET" : "POST",
+    response = await fetch(`${base.replace(/\/$/, "")}/api/${path}`, {
+      method: options.method ?? (options.body === undefined ? "GET" : "POST"),
       headers: {
         "Content-Type": "application/json",
         ...(options.token ? { Authorization: `Bearer ${options.token}` } : {}),
@@ -27,7 +31,7 @@ export async function backendRequest<T>(path: string, options: { body?: unknown;
   }
   if (!response.ok) {
     const error = await response.json().catch(() => null);
-    throw new BackendError(response.status, Object.keys(error?.fieldErrors ?? {}));
+    throw new BackendError(response.status, Object.keys(error?.fieldErrors ?? {}), typeof error?.code === "string" ? error.code : "REQUEST_FAILED");
   }
   if (response.status === 204) return undefined as T;
   try { return await response.json() as T; }

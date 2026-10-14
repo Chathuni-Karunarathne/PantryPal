@@ -7,6 +7,7 @@ import { PantryPalLogo } from "@/components/brand/pantrypal-logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { AuthError } from "@/lib/auth/types";
+import Link from "next/link";
 
 // Temporary authentication checkpoint; replace its content during dashboard work.
 export function DashboardCheckpoint() {
@@ -38,6 +39,7 @@ export function DashboardCheckpoint() {
           <h1 className="mb-4 text-2xl font-semibold">Welcome, {auth.user.name}</h1>
           <p className="mb-2">{auth.user.email}</p>
           <p className="mb-6">Role: {auth.user.role}</p>
+          {auth.user.role !== "ORDER_STAFF" && <Button asChild className="mr-3"><Link href="/inventory">Open inventory</Link></Button>}
           <Button onClick={() => void logout()} disabled={auth.status === "logging-out"}>{auth.status === "logging-out" ? "Signing out…" : "Logout"}</Button>
           {message && <p className="mt-4 text-destructive" role="status">{message}</p>}
         </section>
