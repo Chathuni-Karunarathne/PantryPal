@@ -49,6 +49,10 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/admin/**").hasRole("OWNER_ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/inventory/**").hasAnyRole("OWNER_ADMIN", "MANAGER")
                         .requestMatchers("/api/inventory/**").hasAnyRole("OWNER_ADMIN", "MANAGER", "INVENTORY_STAFF")
+                        .requestMatchers("/api/products/*/recipe").hasAnyRole("OWNER_ADMIN", "MANAGER")
+                        .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**")
+                            .hasAnyRole("OWNER_ADMIN", "MANAGER", "ORDER_STAFF", "INVENTORY_STAFF")
+                        .requestMatchers("/api/products", "/api/products/**").hasAnyRole("OWNER_ADMIN", "MANAGER")
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e.authenticationEntryPoint(errors).accessDeniedHandler(errors))
                 .oauth2ResourceServer(o -> o

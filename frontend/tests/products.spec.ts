@@ -1,0 +1,83 @@
+import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
+
+test.use({ trace: "off", screenshot: "off" });
+
+test("live product catalogue and recipe creation/editing preserve inventory", async ({ page, request }) => {
+  test.skip(process.env.PANTRYPAL_LIVE_PRODUCTS !== "true" || !process.env.PANTRYPAL_TEST_EMAIL || !process.env.PANTRYPAL_TEST_PASSWORD,
+    "Requires an explicitly enabled disposable local backend and temporary owner/manager account.");
+  expect(process.env.API_URL).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/);
+  test.setTimeout(120_000);
+  const suffix = crypto.randomUUID();
+  const name = `Butter Cake ${suffix}`;
+  const category = `Signature bakes ${suffix}`;
+  const ingredient = `Flour ${suffix}`;
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  expect((await request.get("/api/products")).status()).toBe(401);
+  expect((await request.post("/api/products", { headers: { Origin: "https://untrusted.example" }, data: {} })).status()).toBe(403);
+  await page.goto("/login");
+  await page.getByLabel("Email address").fill(process.env.PANTRYPAL_TEST_EMAIL!);
+  await page.getByLabel("Password", { exact: true }).fill(process.env.PANTRYPAL_TEST_PASSWORD!);
+  await page.getByRole("button", { name: /sign in to your workspace/i }).click();
+  await expect(page).toHaveURL(/\/dashboard$/, { timeout: 20_000 });
+  const created = await page.request.post("/api/inventory/ingredients", {
+    headers: { Origin: new URL(page.url()).origin },
+    data: { ingredient: { name: ingredient, category: "FLOUR_AND_GRAINS", unit: "KG", storageLocation: "PANTRY", minimumStock: "1" }, initialQuantity: "5" },
+  });
+  expect(created.status()).toBe(201);
+  const stock = await created.json();
+  await page.goto("/products");
+  await expect(page.getByRole("heading", { name: "Products & recipes", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Categories", exact: true }).click();
+  await page.getByLabel("New category name").fill(category);
+  await page.getByRole("button", { name: "Add category", exact: true }).click();
+  await expect(page.getByRole("status")).toContainText("Category added.");
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await page.getByRole("button", { name: "Add product", exact: true }).click();
+  await page.getByLabel("Product name", { exact: true }).fill(name);
+  await page.getByLabel("Description (optional)").fill("A fresh recipe for our kitchen.");
+  await page.getByLabel("Category", { exact: true }).selectOption({ label: category });
+  await page.getByLabel("Selling price", { exact: true }).fill("1250.50");
+  await page.getByRole("button", { name: "Add product", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("textbox", { name: "Search products" }).fill(name);
+  await page.getByLabel("Filter by product category").selectOption({ label: category });
+  await page.getByRole("button", { name: `Recipe for ${name}`, exact: true }).click();
+  await page.getByLabel("Recipe yield", { exact: true }).fill("2");
+  await page.getByLabel("Yield description", { exact: true }).fill("1 kg cakes");
+  await page.getByLabel("Ingredient 1", { exact: true }).selectOption(stock.id);
+  await page.getByLabel("Quantity for ingredient 1", { exact: true }).fill("250");
+  await page.getByLabel("Unit for ingredient 1", { exact: true }).selectOption("G");
+  expect((await new AxeBuilder({ page }).include('[role="dialog"]').withTags(["wcag2a", "wcag2aa"]).analyze()).violations).toEqual([]);
+  expect(await page.getByRole("dialog").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.getByRole("button", { name: "Save recipe", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("button", { name: `Recipe for ${name}`, exact: true }).click();
+  await expect(page.getByRole("cell", { name: "250", exact: true })).toBeVisible();
+  await expect(page.getByText("2 1 kg cakes", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Edit recipe", exact: true }).click();
+  await page.getByLabel("Quantity for ingredient 1", { exact: true }).fill("500");
+  await page.getByRole("button", { name: "Save recipe", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("button", { name: `Edit ${name}`, exact: true }).click();
+  await page.getByLabel("Description (optional)").fill("Updated product details.");
+  await page.getByRole("button", { name: "Save changes", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.reload();
+  await page.getByRole("textbox", { name: "Search products" }).fill(name);
+  await page.getByRole("button", { name: `Recipe for ${name}`, exact: true }).click();
+  await expect(page.getByRole("cell", { name: "500", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Close", exact: true }).first().click();
+  await page.getByRole("button", { name: `Deactivate ${name}`, exact: true }).click();
+  await page.getByRole("button", { name: "Deactivate product", exact: true }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByLabel("Filter by availability").selectOption("false");
+  await expect(page.getByRole("button", { name: `Activate ${name}`, exact: true })).toBeVisible();
+  const after = await page.request.get(`/api/inventory/ingredients/${stock.id}`);
+  expect(after.ok()).toBe(true);
+  expect((await after.json()).quantity).toBe("5.000000");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+  expect((await page.request.post("/api/products", { data: {} })).status()).toBe(403);
+});

@@ -40,6 +40,7 @@ export function DashboardCheckpoint() {
           <p className="mb-2">{auth.user.email}</p>
           <p className="mb-6">Role: {auth.user.role}</p>
           {auth.user.role !== "ORDER_STAFF" && <Button asChild className="mr-3"><Link href="/inventory">Open inventory</Link></Button>}
+          <Button asChild className="mr-3 mb-3"><Link href="/products">Products & recipes</Link></Button>
           <Button onClick={() => void logout()} disabled={auth.status === "logging-out"}>{auth.status === "logging-out" ? "Signing out…" : "Logout"}</Button>
           {message && <p className="mt-4 text-destructive" role="status">{message}</p>}
         </section>

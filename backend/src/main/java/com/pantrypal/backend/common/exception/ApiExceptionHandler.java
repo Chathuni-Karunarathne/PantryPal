@@ -3,6 +3,7 @@ package com.pantrypal.backend.common.exception;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import com.pantrypal.backend.inventory.service.InventoryException;
+import com.pantrypal.backend.product.service.ProductException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
@@ -18,6 +19,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestControllerAdvice
 public class ApiExceptionHandler {
+    @ExceptionHandler(ProductException.class)
+    ResponseEntity<ApiError> product(ProductException exception) {
+        return response(ApiError.of(exception.status(), exception.code(), exception.getMessage()));
+    }
+
     @ExceptionHandler(InventoryException.class)
     ResponseEntity<ApiError> inventory(InventoryException exception) {
         return response(ApiError.of(exception.status(), exception.code(), exception.getMessage()));
@@ -25,17 +31,17 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     ResponseEntity<ApiError> integrity() {
-        return response(ApiError.of(409, "DATA_CONFLICT", "An ingredient with this name may already exist, or this change conflicts with existing data."));
+        return response(ApiError.of(409, "DATA_CONFLICT", "A record with this name may already exist, or this change conflicts with existing data."));
     }
 
     @ExceptionHandler({PessimisticLockingFailureException.class, ObjectOptimisticLockingFailureException.class})
     ResponseEntity<ApiError> concurrentChange() {
-        return response(ApiError.of(409, "CONCURRENT_CHANGE", "Stock is being updated. Refresh and try again."));
+        return response(ApiError.of(409, "CONCURRENT_CHANGE", "This record is being updated. Refresh and try again."));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     ResponseEntity<ApiError> invalidParameter() {
-        return response(ApiError.of(400, "INVALID_PARAMETER", "Check the ingredient ID and filter values."));
+        return response(ApiError.of(400, "INVALID_PARAMETER", "Check the record ID and filter values."));
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     ResponseEntity<ApiError> validation(MethodArgumentNotValidException exception) {

@@ -41,6 +41,7 @@ public class Ingredient {
     public StorageLocation getStorageLocation() { return storageLocation; }
     public BigDecimal getQuantity() { return quantity; }
     public BigDecimal getMinimumStock() { return minimumStock; }
+    public boolean isArchived() { return archived; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
 }

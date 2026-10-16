@@ -38,6 +38,7 @@ export function InventoryWorkspace() {
       <nav className="mt-3 space-y-2" aria-label="Workspace navigation">
         <Link href="/dashboard" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-muted-foreground hover:bg-muted"><LayoutDashboard className="size-4" />Workspace</Link>
         <Link href="/inventory" aria-current="page" className="flex items-center gap-3 rounded-xl bg-primary/10 px-3 py-3 text-sm font-semibold text-primary"><Package className="size-4" />Inventory</Link>
+        <Link href="/products" className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-muted-foreground hover:bg-muted"><ClipboardList className="size-4" />Products & recipes</Link>
       </nav>
       <div className="mt-auto rounded-2xl border bg-background p-4"><Leaf className="mb-3 size-5 text-primary" /><p className="text-sm font-medium">Good food starts here.</p><p className="mt-2 text-xs leading-relaxed text-muted-foreground">Keep ingredients in view and your kitchen ready for the next creation.</p></div>
     </aside>
@@ -52,6 +53,7 @@ export function InventoryWorkspace() {
       </div>
     </header>
     <main className="mx-auto max-w-7xl px-4 py-7 sm:px-8 sm:py-10">
+      <nav aria-label="Mobile workspace navigation" className="mb-6 flex flex-wrap gap-2 lg:hidden"><Button asChild variant="outline"><Link href="/dashboard">Workspace</Link></Button><Button asChild variant="secondary"><Link href="/inventory" aria-current="page">Inventory</Link></Button><Button asChild variant="outline"><Link href="/products">Products & recipes</Link></Button></nav>
       {logoutError && <p role="alert" className="mb-5 text-sm text-destructive">{logoutError}</p>}
       {auth.status === "error" ? <StateCard icon={<CircleAlert />} title="Your workspace is temporarily unavailable" description={auth.message}><Button onClick={() => void auth.restore()}>Try again</Button></StateCard>
         : auth.status === "authenticated" && permitted ? <InventoryContent key={auth.user!.id} canDelete={auth.user!.role !== "INVENTORY_STAFF"} />
